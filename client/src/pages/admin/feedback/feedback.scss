@@ -1,0 +1,28 @@
+.admin-feedback {
+  .admin-feedback-intro { padding: 2px 2px 18px; }
+  .admin-feedback-disclaimer { margin-top: 8px; font-size: 11px; line-height: 1.8; color: #737373; }
+  .admin-feedback-toolbar { margin: 0 0 20px; }
+  .admin-feedback-toolbar .form-field { padding: 0; }
+  .admin-feedback-toolbar .field-label { margin-bottom: 8px; font-size: 11px; color: #737373; }
+  .admin-feedback-toolbar .picker-control { width: 100%; min-height: 44px; background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; }
+  .admin-feedback-toolbar .action-button__content { width: 100%; justify-content: flex-start; }
+  .admin-feedback-toolbar .action-button__label { text-align: left; font-size: 12px; }
+  .feedback-list-heading { display: flex; justify-content: space-between; padding: 0 2px 12px; font-size: 11px; color: #737373; }
+  .admin-feedback-record .context-row { padding: 0 0 4px; gap: 10px; }
+  .admin-feedback-record .context-name { min-width: 0; font-size: 15px; font-weight: 600; }
+  .admin-feedback-record .badge { max-width: 110px; white-space: normal; }
+  .admin-feedback-record .paragraph { font-size: 12px; margin-top: 10px; line-height: 1.8; }
+  .admin-feedback-record .form-field { padding: 16px 0 12px; margin-top: 4px; border-top: 1px solid #f0f0f0; }
+  .admin-feedback-record .field-label { font-size: 12px; margin-bottom: 10px; }
+  .admin-feedback-record .field-help { font-size: 10px; }
+  .admin-feedback-record .textarea-control { border: 1px solid #e8e8e8; font-size: 12px; border-radius: 8px; background: #fafafa; }
+  .snapshot-toggle { margin-top: 8px; font-size: 11px; }
+  .admin-feedback-snapshot { background: #f7f7f7; border-radius: 8px; padding: 12px; margin: 0 0 16px; }
+  .admin-feedback-snapshot .section-label { font-size: 11px; padding-bottom: 4px; }
+  .admin-feedback-snapshot .paragraph { white-space: pre-wrap; font-size: 11px; }
+  .admin-feedback-snapshot .button-secondary { width: 100%; margin: 12px 0; font-size: 11px; }
+  .admin-feedback-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .admin-feedback-actions .button-secondary { flex: 1 1 76px; min-width: 0; margin: 0; min-height: 44px; padding: 0 6px; font-size: 11px; line-height: 1.6; border-radius: 8px; }
+  .admin-feedback-empty { padding: 32px 18px; background: #fff; border: 1px solid #ebebeb; border-radius: 12px; margin-bottom: 16px; }
+  .pagination { gap: 8px; flex-wrap: wrap; }
+}

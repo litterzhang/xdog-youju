@@ -1,0 +1,25 @@
+.incremental-page {
+  .incremental-overview .context-name { display: block; font-size: 15px; font-weight: 600; }
+  .incremental-overview .button-primary { width: 100%; margin: 16px 0 0; }
+  .incremental-overview .caption { margin-top: 8px; }
+  .incremental-run-heading { margin-top: 14px; }
+  .incremental-run-heading .admin-stat { flex: 1 1 72px; }
+  .incremental-run-heading .admin-stat-value { font-size: 24px; }
+  .incremental-notice-list { background: #fff; border: 1px solid #ebebeb; border-radius: 12px; overflow: hidden; }
+  .incremental-notice-list:empty { display: none; }
+  .incremental-notice { padding: 20px 16px 16px; }
+  .incremental-notice + .incremental-notice { border-top: 1px solid #ededed; }
+  .incremental-notice-heading { display: block; }
+  .incremental-notice-title { display: block; font-size: 16px; font-weight: 600; line-height: 1.7; overflow-wrap: anywhere; }
+  .incremental-notice-heading .badge { margin-top: 10px; }
+  .incremental-notice .caption { font-size: 11px; }
+  .incremental-notice-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 14px; border-top: 1px solid #f2f2f2; padding-top: 4px; }
+  .incremental-notice-actions .button-text { margin: 0; padding: 0 2px; font-size: 11px; }
+  .incremental-positions { margin: 8px 0 0; background: #f7f7f7; border-radius: 8px; padding: 4px 12px; }
+  .incremental-position { padding: 12px 0; }
+  .incremental-position + .incremental-position { border-top: 1px solid #e8e8e8; }
+  .incremental-position-title { display: block; font-size: 13px; font-weight: 600; line-height: 1.7; overflow-wrap: anywhere; }
+  .incremental-navigation { border: 1px solid #ebebeb; border-radius: 12px; overflow: hidden; }
+  .pagination { flex-wrap: wrap; gap: 10px; }
+  .footnote { text-align: center; }
+}

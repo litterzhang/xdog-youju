@@ -1,0 +1,53 @@
+# Local environments and credentials
+.env
+.env.*
+!.env.example
+.venv/
+.secrets/
+*.pem
+*.key
+# Generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+node_modules/
+dist/
+.taro/
+*.tsbuildinfo
+.DS_Store
+
+# Local SQLite databases
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Local crawl captures and POC artifacts
+server/.data/
+server/.artifacts/
+
+# Local staged client verification builds
+client/.artifacts/
+
+# Additional local database formats, snapshots and process locks
+*.sqlite
+*.sqlite-*
+*.sqlite3.*
+*.db
+*.db-*
+*.dump
+*.source.lock
+*.worker.lock
+
+# Compiler caches, local tooling and private build diagnostics
+.swc/
+.cache/
+.artifacts/
+.data/
+*.log
+*.bak
+*.backup*
+project.private.config.json

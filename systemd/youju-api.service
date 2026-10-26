@@ -1,0 +1,23 @@
+[Unit]
+Description=Youju production Flask API
+After=network-online.target
+Wants=network-online.target youju-source-worker.service youju-recipe.service
+
+[Service]
+Type=simple
+User=zhang
+Group=zhang
+WorkingDirectory=/home/zhang/workspace/xdog-youju/server
+# The module reads the project's private .env as zhang, never as client build input.
+Environment=PYTHONUNBUFFERED=1
+# Match the reference service: enter through a system executable under SELinux.
+ExecStart=/usr/bin/bash -c "exec /home/zhang/workspace/xdog-youju/server/.venv/bin/python -m youju.production"
+Restart=on-failure
+RestartSec=3
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,24 @@
+.source-management {
+  .sources-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0 18px; }
+  .sources-count { font-size: 30px; font-weight: 600; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .sources-count-label { font-size: 11px; color: #737373; }
+  .sources-add { width: 100%; min-height: 48px; line-height: 48px; padding: 0 18px; margin: 0 0 24px; font-size: 14px; border-radius: 10px; }
+  .sources-list-heading { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: #737373; padding: 0 2px 12px; line-height: 1.7; }
+  .sources-list { background: #fff; border: 1px solid #ebebeb; border-radius: 12px; overflow: hidden; }
+  .source-list-row { display: block; width: 100%; padding: 20px 18px; margin: 0; border: 0; border-radius: 0; background: transparent; white-space: normal; text-align: left; line-height: 1.7; }
+  .source-list-row::after { border: 0; }
+  .source-list-row + .source-list-row { border-top: 1px solid #ededed; }
+  .source-list-row:active { background: #fafafa; }
+  .source-list-content { width: 100%; min-width: 0; }
+  .source-list-org { display: block; font-size: 11px; color: #737373; overflow-wrap: anywhere; }
+  .source-list-heading { display: flex; align-items: flex-start; gap: 14px; margin-top: 6px; }
+  .source-list-name { flex: 1; min-width: 0; color: #171717; font-size: 16px; font-weight: 600; line-height: 1.6; overflow-wrap: anywhere; }
+  .source-list-heading .navigation-arrow { margin-top: 6px; }
+  .source-list-host { display: block; margin-top: 6px; font-size: 11px; color: #737373; overflow-wrap: anywhere; }
+  .source-list-state { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+  .source-state-label { background: #f3f3f3; padding: 3px 8px; border-radius: 4px; font-size: 10px; color: #525252; flex-shrink: 0; }
+  .source-state-label--attention { background: #252525; color: #fff; }
+  .source-state-detail { color: #626262; font-size: 11px; overflow-wrap: anywhere; }
+  .source-list-updated { display: block; margin-top: 14px; padding-top: 12px; border-top: 1px solid #f2f2f2; color: #737373; font-size: 10px; }
+  .sources-refresh { width: 100%; margin: 12px 0 0; font-size: 11px; }
+}

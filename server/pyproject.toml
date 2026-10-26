@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "xdog-youju-server"
+version = "0.1.0"
+description = "Evidence-based public institution recruitment search foundation"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "beautifulsoup4>=4.13,<5",
+    "defusedxml>=0.7,<1",
+    "flask>=3.1,<4",
+    "httpx[socks]>=0.28,<0.29",
+    "openpyxl>=3.1,<4",
+    "playwright>=1.58,<2",
+    "protego>=0.7,<0.8",
+    "pypdf>=6,<7",
+    "python-docx>=1.2,<2",
+    "python-dotenv>=1,<2",
+    "scikit-learn>=1.7,<2",
+    "sqlalchemy>=2.0,<2.1",
+    "tldextract>=5.4,<6",
+    "waitress>=3,<4",
+    "xdog-agent==2.4.9",
+    "xdog-ai[openai]==2.4.9",
+    "xdog-flow==2.4.9",
+    "xdog-tui==2.4.9",
+    "xlrd>=2,<3",
+]
+
+[dependency-groups]
+dev = ["pytest>=9,<10", "ruff>=0.9,<1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/youju"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+# Generated, untrusted recipes are independently audited, not repository source.
+extend-exclude = [".artifacts", ".data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

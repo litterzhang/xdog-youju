@@ -1,0 +1,12 @@
+{
+  "description": "xdog-youju local development foundation",
+  "miniprogramRoot": "dist/weapp/",
+  "projectname": "xdog-youju",
+  "appid": "wxc01f9aa6db230b0c",
+  "compileType": "miniprogram",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "minified": true
+  }
+}

@@ -1,0 +1,22 @@
+[Unit]
+Description=Youju managed Recipe RPC service, Agent worker and callback dispatcher
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zhang
+Group=zhang
+WorkingDirectory=/home/zhang/workspace/xdog-youju/server
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/bash -c "exec /home/zhang/workspace/xdog-youju/server/.venv/bin/python -m youju.recipe_service.production"
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,32 @@
+{
+  "regions": [
+    { "code": "anhui", "name": "安徽省" }
+  ],
+  "organizations": [
+    {
+      "id": "ustc",
+      "name": "中国科学技术大学",
+      "short_name": "中国科大",
+      "organization_type": "university"
+    }
+  ],
+  "sources": [
+    {
+      "id": "ustc-employment",
+      "name": "中国科学技术大学人才招聘网",
+      "publisher_organization_id": "ustc",
+      "base_url": "https://employment.ustc.edu.cn/cn/",
+      "region_codes": ["anhui"],
+      "description": "首个学校试点。安徽省仅为来源分类标签，不代表所有岗位所在地。",
+      "seeds": [
+        {
+          "id": "ustc-notices",
+          "name": "最新招聘公告",
+          "kind": "listing",
+          "url": "https://employment.ustc.edu.cn/cn/indexnewslist.aspx?signtype=51",
+          "refresh_interval_seconds": 3600
+        }
+      ]
+    }
+  ]
+}

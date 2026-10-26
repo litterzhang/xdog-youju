@@ -1,0 +1,23 @@
+[Unit]
+Description=Youju asynchronous source onboarding and incremental worker
+After=network-online.target youju-recipe.service
+Wants=network-online.target youju-recipe.service
+PartOf=youju-api.service
+
+[Service]
+Type=simple
+User=zhang
+Group=zhang
+WorkingDirectory=/home/zhang/workspace/xdog-youju/server
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/bash -c "exec /home/zhang/workspace/xdog-youju/server/.venv/bin/python -m youju.background"
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

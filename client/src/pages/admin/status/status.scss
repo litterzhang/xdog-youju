@@ -1,0 +1,28 @@
+.source-status, .onboarding-detail {
+  .context-row { padding: 0 0 8px; }
+  .source-revision-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 0; }
+  .source-revision-row + .source-revision-row { border-top: 1px solid #f0f0f0; }
+  .source-row-label { font-size: 11px; min-width: 58px; color: #737373; }
+  .source-revision-copy { flex: 1; min-width: 108px; }
+  .source-short-id { display: block; font-size: 12px; font-family: monospace; overflow-wrap: anywhere; }
+  .source-revision-row .button-text { margin: 0; padding: 0 4px; font-size: 11px; }
+  .source-data-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+  .source-data-row:last-child { border-bottom: 0; }
+  .source-data-row .source-row-label { flex: 0 0 92px; line-height: 1.8; }
+  .source-data-value { flex: 1; min-width: 0; font-size: 11px; line-height: 1.8; color: #525252; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .source-task { padding: 14px 0; border-top: 1px solid #f0f0f0; }
+  .source-navigation { background: #fff; border: 1px solid #ebebeb; border-radius: 12px; overflow: hidden; margin: 0 0 20px; }
+  .source-navigation .menu-row { padding: 18px 16px; }
+  .source-navigation .menu-row + .menu-row { border-color: #ededed; }
+  .source-overview .paragraph { margin-top: 10px; }
+  .source-recovery .paragraph { margin-bottom: 16px; }
+}
+.onboarding-detail {
+  .timeline-row { font-size: 12px; padding: 10px 0; }
+  .timeline-copy .caption { font-size: 10px; }
+  .timeline-row::before { background: #e8e8e8; }
+  .technical-toggle { width: 100%; margin: 4px 0 16px; font-size: 12px; }
+}
+.onboarding-detail .admin-panel.timeline { padding: 18px; }
+.onboarding-detail .timeline-row { color: #626262; }
+.onboarding-detail .timeline-row--current { color: #171717; }
