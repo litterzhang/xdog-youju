@@ -20,6 +20,7 @@ class ExtractionDraft:
         default_factory=lambda: {"supported": False, "complete": False, "needs_detailed": False}
     )
     issues: list[dict] = field(default_factory=list)
+    corrections: list[dict] = field(default_factory=list)
     schema_version: str = field(default=DRAFT_CONTRACT, init=False)
 
     def __post_init__(self):
@@ -39,6 +40,9 @@ class ExtractionDraft:
             for i in self.issues
         ):
             raise ValueError("Draft issues require code and message")
+        from .corrections import validate_corrections
+
+        validate_corrections(self.corrections)
         json.dumps(self.as_dict(), allow_nan=False)
 
     def as_dict(self):
@@ -48,6 +52,7 @@ class ExtractionDraft:
             "positions": self.positions,
             "coverage": self.coverage,
             "issues": self.issues,
+            **({"corrections": self.corrections} if self.corrections else {}),
         }
 
     @classmethod
@@ -55,11 +60,17 @@ class ExtractionDraft:
         keys = {"schema_version", "notice_facts", "positions", "coverage", "issues"}
         if (
             not isinstance(value, dict)
-            or set(value) != keys
+            or set(value) - {"corrections"} != keys
             or value["schema_version"] != DRAFT_CONTRACT
         ):
             raise ValueError("Unsupported extraction draft contract")
-        return cls(value["notice_facts"], value["positions"], value["coverage"], value["issues"])
+        return cls(
+            value["notice_facts"],
+            value["positions"],
+            value["coverage"],
+            value["issues"],
+            value.get("corrections", []),
+        )
 
 
 # JSON-native schemas shared with model adapters; no runtime/toolkit imports.
@@ -98,6 +109,8 @@ _DRAFT_POSITION = {
         "dates": {**DATES_SCHEMA, "required": []},
     },
 }
+from .corrections import CORRECTION_SCHEMA  # noqa: E402
+
 DRAFT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
@@ -117,6 +130,7 @@ DRAFT_SCHEMA = {
                 },
             },
         },
+        "corrections": {"type": "array", "maxItems": 100, "items": CORRECTION_SCHEMA},
         "coverage": COVERAGE_SCHEMA,
         "issues": {"type": "array", "items": ISSUE_SCHEMA},
     },
@@ -134,10 +148,18 @@ unresolved alternatives/exceptions as other:{text}, never silently assume AND.
 Use explicit all/any reference-only condition_logic covering all declared IDs.
 Every referenced condition_id must exist in the same conditions array. For an empty
 conditions array use condition_logic=null, never {operator:all,items:[]}.
-Every emitted position needs a usable local/inherited title. Preserve an existing
-source-tagged script title verbatim under the same key: do not append unit names,
-qualifiers or creative expansions. Put unit information in hiring_unit, not title.
-A suspected correction is a conflict for review, never silent identity replacement.
+Every emitted position needs a usable local/inherited title. Keep script keys and
+source titles unless an explicit corrections proposal justifies a correction.
+Do not append unit qualifiers creatively; use hiring_unit. Missing rows do not mean
+deletion. To retract a false job emit withdraw_position, copy the exact old position
+into before, use field=null/after=null and omit that row from positions. To correct
+a business field emit replace_field with the exact before/after tagged values and
+retain its key. Each proposal needs bundle_id, reason and evidence references with
+version_id, pointer (/blocks/N/text or /tables/N/rows/R/C), zero-based character
+start/end and the exact quote. Use only actual frozen material versions/locations.
+One correction per position per refinement; overlapping proposals are rejected.
+References establish location, not truth. Preserve ambiguous cases for review;
+never treat script/model source tags as independent verification.
 Never emit a titleless job or erase a readable job because employment/process
 details or an attachment are unknown.
 Education and degree are separate; do not infer one from the other as source.
@@ -242,7 +264,7 @@ def validate_draft(draft):
     return errors
 
 
-def merge_drafts(script, detailed):
+def merge_drafts(script, detailed, *, bundle=None, correction_receipts=None):
     """Refine only by explicit local key, never title; preserve unrefined rows/facts.
 
     Contradictory source assertions are unknown with explicit candidate diagnostics.
@@ -255,7 +277,14 @@ def merge_drafts(script, detailed):
         errors = validate_draft(value)
         if errors:
             raise ValueError(errors[0]["message"])
+    if script.get("corrections"):
+        raise ValueError("Only model refinement can propose explicit corrections")
     base, incoming = deepcopy(script), deepcopy(detailed)
+    from .corrections import apply_corrections
+
+    base, incoming = apply_corrections(
+        base, incoming, bundle, correction_receipts if correction_receipts is not None else []
+    )
     from .issues import CAPABILITY_CODES
 
     # A bootstrap parser's inability is not a fact or a gold answer. Detailed
@@ -483,6 +512,14 @@ def validate_model_draft(draft, previous=None):
             and title.get("tag") == "source"
             and title.get("value")
             and title["value"] != old_title["value"]
+            and not any(
+                c["operation"] == "replace_field"
+                and c["position_key"] == position["key"]
+                and c["field"] == "title"
+                and c["before"] == old_title
+                and c["after"] == title
+                for c in draft.get("corrections", [])
+            )
         ):
             errors.append(
                 {

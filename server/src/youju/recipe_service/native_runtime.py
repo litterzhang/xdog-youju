@@ -124,7 +124,11 @@ Report shared extraction/domain/routing defects rather than bypassing them in a
 source-specific script. Inspect original rejected data, not just tiny summaries.
 
 Finish with submit_recipe({ready:true,summary:...}). The host validates actual
-files/samples. Diagnose and fix rejections in-session. Unchanged confirmed defects
+files/samples and a host-selected frozen regression set independent of the startup
+samples. Case tools are development feedback, not authority to choose acceptance
+cases or edit answers. Unlabeled replay is not semantic accuracy. Fix located
+submission failures; report shared-domain blockers rather than source workarounds.
+Diagnose and fix rejections in-session. Unchanged confirmed defects
 or cycles stop with saved diagnosis; cosmetic edits do not prove improvement.
 Use report_progress for brief secret-free status; blocked is only for external
 impediments, not ordinary repairable rejection. No maximum-turn, total-token or
@@ -281,6 +285,12 @@ class XdogAgentRuntime:
             ),
             "case_versions": [digest(sample) for sample in payload.get("samples", [])],
         }
+        if payload.get("acceptance_ref"):
+            from .acceptance import checker_key as acceptance_checker
+
+            validation_bindings.update(
+                acceptance_ref=payload["acceptance_ref"], acceptance_checker=acceptance_checker()
+            )
         progress_scope = digest(validation_bindings)
         progress = ValidationProgress(await view.run_io(view.validation_progress, progress_scope))
         usage = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0, "requests": 0}
@@ -408,6 +418,25 @@ class XdogAgentRuntime:
                             require_application_period=True,
                             validation_bindings=validation_bindings,
                         )
+                        if payload.get("acceptance_ref") and not attempt["errors"]:
+                            from youju.poc.storage import BlobStore
+
+                            from .acceptance import validate_submission
+
+                            acceptance = await validate_submission(
+                                BlobStore(workspace.root.parent / "objects"),
+                                payload["acceptance_ref"],
+                                payload["source_id"],
+                                author,
+                                candidate,
+                                payload["now_iso"],
+                                test_binding,
+                            )
+                            attempt["acceptance"] = acceptance
+                            attempt["errors"].extend(acceptance["errors"])
+                            attempt["failures"].extend(acceptance["failures"])
+                            attempt["status"] = "rejected" if attempt["errors"] else "validated"
+                            attempt["original_error_count"] = len(attempt["errors"])
                         await view.run_io(
                             view.record_test,
                             {"test_id": test_id, "bindings": test_binding, "attempt": attempt},

@@ -8,6 +8,15 @@
 - 定位：事业单位招聘垂直搜索与条件匹配，帮助用户快速发现可能符合条件且仍可报名的岗位，并核对官方依据。
 - 产品原则：岗位有出处，匹配有依据，信息变化可追踪。不冒充官方，不保证报名资格或录取结果。
 
+## Accuracy follow-up — October 30, 2026 (offline implementation)
+
+The [follow-up implementation](docs/RECIPE_ACCURACY_FOLLOWUP_IMPLEMENTATION.md)
+adds scoped requirement-coverage checks, evidence-bound explicit corrections,
+host-selected submission regressions, and separates runtime re-audit from terminal
+source revision review. These shared changes have not been deployed or used to
+recompute production jobs. Notice cost routing and candidate visibility are unchanged.
+The October 26 operational counts below remain historical, not a current status check.
+
 ## Latest state — October 26, 2026
 
 The [field-visibility client release](docs/CLIENT_RELEASE_20261026.md) is uploaded

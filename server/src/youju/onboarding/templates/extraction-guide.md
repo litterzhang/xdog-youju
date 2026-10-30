@@ -133,3 +133,29 @@ and multiple residual conditions. This is structural feedback, not semantic gold
 Quick results retain readable jobs with diagnostics. The host does not concatenate
 arbitrary residual output or repair source files. Successful execution receipts
 include bounded script/model/merge stages for later diagnosis.
+
+
+## Requirement coverage, explicit corrections and independent regressions
+
+A nonempty condition array is not proof of completeness. Inspect each applicable
+requirement clause; unrelated common `other` text must not hide missing education,
+major or experience. Preserve preferences, exceptions, scope and ALL/ANY logic;
+never turn diagnostic keywords into mandatory facts. Detailed scripts can finish
+without AI when their extraction is complete. Cost routing is unchanged.
+
+Script `source` tags are provenance, not independent truth. A read-only extraction
+model may submit the optional draft `corrections` list for an explicit field
+replacement or false-position withdrawal. Keep the stable position key and exact
+old value/row, and bind the proposal to the frozen bundle plus a literal block or
+table-cell reference (document version, pointer, character offsets and quote).
+This evidence requirement applies to correction operations, not ordinary fields.
+Missing model rows never imply deletion. Unverified/conflicting proposals preserve
+the old row with a diagnostic; applied proposals retain old/new/reason receipts.
+Parsers do not issue correction proposals. Use the supplied draft schema.
+
+The host freezes at most eight submission regression cases outside the 1–3 startup
+samples, preferring known failures and format/template diversity. Authors cannot
+choose the acceptance subset or edit expected answers. Existing host-owned semantic
+labels supply partial assertions; no label means execution compatibility only.
+Source-owned unexposed holdouts stay outside the author task. A repaired regression
+pass is not unseen generalization, and no new manual-review stage is required.

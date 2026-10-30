@@ -393,6 +393,21 @@ async def run_recipe_worker(pipeline):
                 attempt = await author.validate_candidate(
                     candidate, payload["samples"], payload["now_iso"], turn + 1
                 )
+                if payload.get("acceptance_ref") and not attempt["errors"]:
+                    from youju.recipe_service.acceptance import validate_submission
+
+                    acceptance = await validate_submission(
+                        service.blobs,
+                        payload["acceptance_ref"],
+                        payload["source_id"],
+                        author,
+                        candidate,
+                        payload["now_iso"],
+                        {},
+                    )
+                    attempt["acceptance"] = acceptance
+                    attempt["errors"].extend(acceptance["errors"])
+                    attempt["status"] = "rejected" if attempt["errors"] else "validated"
                 attempts.append(attempt)
                 if not attempt["errors"]:
                     return TaskOutcome(
@@ -604,6 +619,7 @@ def test_full_audit_quarantines_unsampled_failures_without_blocking_incremental(
     )
     samples = set()
     repair_enabled = False
+    auditing = False
     pages[BASE + "missing.pdf"] = CrawlError(CrawlErrorCode.POLICY_BLOCKED, "Synthetic denial")
     pages[BASE + "unknown"] = (
         "<html><title>待确认页面</title><body><p>此处材料需要人工确认。</p></body></html>".encode(),
@@ -617,6 +633,7 @@ def test_full_audit_quarantines_unsampled_failures_without_blocking_incremental(
         if (
             task == "extract_position_draft"
             and payload["bundle"]["url"] not in samples
+            and auditing
             and not repair_enabled
         ):
             invalid = extract_position_draft(payload["bundle"])
@@ -627,6 +644,16 @@ def test_full_audit_quarantines_unsampled_failures_without_blocking_incremental(
     engine, store, transport, pipeline = setup_source(
         tmp_path, pages=pages, sandbox=NeedsDetailedSandbox(), stub=stub
     )
+    original_run = pipeline.runner.run
+
+    async def source_audit_run(*args, **kwargs):
+        nonlocal auditing
+        # Inject a later runtime failure, not a submission-regression failure.
+        # Independent acceptance is separately enforced before this source audit.
+        auditing = True
+        return await original_run(*args, **kwargs)
+
+    pipeline.runner.run = source_audit_run
     states = asyncio.run(run_onboarding(pipeline))
     assert len(samples) == 3
     final = states[-1]

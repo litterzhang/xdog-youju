@@ -1,0 +1,63 @@
+{
+  "origin": {
+    "bundle_id": "4853b4516d904ac2b8dfd603fcf5356b",
+    "bundle_digest": "73909308eb84eb1b60a6be812ad752d53b4ca2e4e77d3d9d352e55f4f35bd761",
+    "body_ref": "01f79b0c282c48a7a2aa927b70d8283e5af06e3b4dd071dbe2468794b19740b7",
+    "url": "https://employment.ustc.edu.cn/cn/indexnews.aspx?sign=639280915767876006",
+    "version_id": "1f49724858eb4e5dad07c94f65eac8b6",
+    "sha256": "b6d665b8e1e89f5733012c0d46a76fab5b1956cbc849ffe1e58da1e58f976a69"
+  },
+  "cases": [
+    {
+      "title": "科技成果转化管理",
+      "requirements_text": "2 、理工科、经济管理、法律、金融等相关专业背景，硕士研究生及以上学历；\n5 、有两年（含）以上项目管理、成果转化、企业孵化或投融资相关工作经验；",
+      "references": [
+        {
+          "id": "9ef7082a66494df8a0450b850f6adf60:b6d665b8e1e89f5733012c0d46a76fab5b1956cbc849ffe1e58da1e58f976a69:b24",
+          "locator": "html:nth-of-type(1) > body:nth-of-type(1) > form:nth-of-type(1) > center:nth-of-type(1) > div:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(4) > td:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(24)",
+          "text": "2 、理工科、经济管理、法律、金融等相关专业背景，硕士研究生及以上学历；"
+        },
+        {
+          "id": "9ef7082a66494df8a0450b850f6adf60:b6d665b8e1e89f5733012c0d46a76fab5b1956cbc849ffe1e58da1e58f976a69:b27",
+          "locator": "html:nth-of-type(1) > body:nth-of-type(1) > form:nth-of-type(1) > center:nth-of-type(1) > div:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(4) > td:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(27)",
+          "text": "5 、有两年（含）以上项目管理、成果转化、企业孵化或投融资相关工作经验；"
+        }
+      ],
+      "expected_requirements": {
+        "education": "master",
+        "majors": [
+          "理工科",
+          "经济管理",
+          "法律",
+          "金融"
+        ],
+        "minimum_years": 2,
+        "experience_kind": "项目管理、成果转化、企业孵化或投融资相关工作"
+      }
+    },
+    {
+      "title": "科研平台管理",
+      "requirements_text": "2 、理工科专业背景，硕士研究生及以上学历；\n4 、熟悉科技政策，有 2 年及以上科研平台管理工作经验。",
+      "references": [
+        {
+          "id": "9ef7082a66494df8a0450b850f6adf60:b6d665b8e1e89f5733012c0d46a76fab5b1956cbc849ffe1e58da1e58f976a69:b39",
+          "locator": "html:nth-of-type(1) > body:nth-of-type(1) > form:nth-of-type(1) > center:nth-of-type(1) > div:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(4) > td:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(38)",
+          "text": "2 、理工科专业背景，硕士研究生及以上学历；"
+        },
+        {
+          "id": "9ef7082a66494df8a0450b850f6adf60:b6d665b8e1e89f5733012c0d46a76fab5b1956cbc849ffe1e58da1e58f976a69:b41",
+          "locator": "html:nth-of-type(1) > body:nth-of-type(1) > form:nth-of-type(1) > center:nth-of-type(1) > div:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(4) > td:nth-of-type(1) > table:nth-of-type(1) > tbody:nth-of-type(1) > tr:nth-of-type(1) > td:nth-of-type(2) > div:nth-of-type(1) > p:nth-of-type(40)",
+          "text": "4 、熟悉科技政策，有 2 年及以上科研平台管理工作经验。"
+        }
+      ],
+      "expected_requirements": {
+        "education": "master",
+        "majors": [
+          "理工科"
+        ],
+        "minimum_years": 2,
+        "experience_kind": "科研平台管理"
+      }
+    }
+  ]
+}

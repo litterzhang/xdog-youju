@@ -47,8 +47,8 @@ class ValidationProgress:
                         "sample_index",
                         "status",
                         "position_count",
-                        "validity",
-                        "quality_tier",
+                        "case_id",
+                        "semantic",
                     )
                 }
             )
@@ -62,6 +62,15 @@ class ValidationProgress:
                             "code",
                             "path",
                             "sample_index",
+                            "case_id",
+                            "semantic_code",
+                            "actual",
+                            "expected",
+                            "source_path",
+                            "position_key",
+                            "candidate_types",
+                            "condition_id",
+                            "reason",
                             "resource_id",
                             "message",
                             "line",

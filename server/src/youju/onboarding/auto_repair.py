@@ -352,7 +352,7 @@ async def advance(pipeline, source_id, *, limit):
         feedback = json.loads(store.blobs.read(feedback_ref))
         rpc = pipeline.recipe_rpc
         if row.status == "preparing":
-            from .semantic_labels import author_visible
+            from .semantic_labels import author_visible, export_regressions
 
             location = await rpc.call("GetWorkspace", workspace_id=context["workspace_id"])
             expected_path = store.blobs.root.absolute() / "authoring" / context["workspace_id"]
@@ -373,6 +373,7 @@ async def advance(pipeline, source_id, *, limit):
                     samples,
                     context,
                     feedback,
+                    semantic_labels=await asyncio.to_thread(export_regressions, store, source_id),
                     cases=[
                         store.load_bundle(b["id"], classifier_key=row.classifier_key)
                         for b in store.bundles(

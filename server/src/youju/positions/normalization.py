@@ -26,6 +26,8 @@ def normalize_extraction(draft, *, context=None):
             raise ValueError("Expected ExtractionDraft or its canonical JSON object")
         # Recheck mutable payloads even for a dataclass constructed earlier.
         draft = ExtractionDraft.from_dict(deepcopy(draft.as_dict()))
+        if draft.corrections:
+            raise ValueError("Apply explicit corrections before normalizing facts")
     except (TypeError, ValueError) as error:
         return {
             "schema_version": CONTRACT,

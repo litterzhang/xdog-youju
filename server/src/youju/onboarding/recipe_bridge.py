@@ -8,7 +8,7 @@ from .recipe_client import RecipeRPCError
 from .recipes import RecipeAuthor
 
 
-def prepare_input(path, source_id, samples, context, feedback, *, cases=None):
+def prepare_input(path, source_id, samples, context, feedback, *, cases=None, semantic_labels=None):
     workspace = AuthorWorkspace(path)
     RecipeAuthor.prepare_workspace(
         workspace,
@@ -27,10 +27,16 @@ def prepare_input(path, source_id, samples, context, feedback, *, cases=None):
         from .store import json_bytes
 
         blobs = BlobStore(Path(path).parent / "objects")
+        from youju.recipe_service.acceptance import freeze_acceptance
+
+        acceptance_ref = freeze_acceptance(
+            blobs, source_id, cases, [s["id"] for s in samples], semantic_labels
+        )
         reference = freeze_cases(blobs, source_id, cases)
         with workspace._directories() as directories:
             payload = json.loads(_read(directories["input"], "payload.json", MAX_PAYLOAD))
             payload["case_catalog_ref"] = reference
+            payload["acceptance_ref"] = acceptance_ref
             if feedback is not None:
                 from youju.recipe_service.cases import load_catalog, validate_failure_inputs
 
@@ -130,7 +136,7 @@ class SourceRecipeCoordinator:
         from .classification_policy import notice_candidate
         from .recipe_versions import import_revision, next_generation
         from .sampling import select_samples
-        from .semantic_labels import author_visible
+        from .semantic_labels import author_visible, export_regressions
 
         if self.rpc is None:
             raise RecipeRPCError("RECIPE_SERVICE_NOT_CONFIGURED")
@@ -183,6 +189,9 @@ class SourceRecipeCoordinator:
                     samples,
                     context,
                     None,
+                    semantic_labels=await asyncio.to_thread(
+                        export_regressions, self.store, source_id
+                    ),
                     cases=[
                         self.store.load_bundle(b["id"], classifier_key=self.classifier_key)
                         for b in self.store.bundles(
@@ -275,6 +284,18 @@ class SourceRecipeCoordinator:
         if self.rpc is None or pending.get("status") != "pending":
             return
         intent = pending["intent"]
+        if intent["decision"] == "reject":
+            from .recipe_versions import failed_candidate_audit, same_source_revision
+
+            with self.store.lock, Session(self.store.engine) as session:
+                binding = failed_candidate_audit(session, source_id, intent["feedback"]["audit_id"])
+                if same_source_revision(session, binding):
+                    # Legacy conflicting intents require explicit operator reconciliation.
+                    raise RecipeRPCError("RECIPE_RUNTIME_REVIEW_CONFLICT")
+                if binding.candidate_revision_id != intent["revision_id"] or (
+                    binding.workspace_id != intent["workspace_id"]
+                ):
+                    raise RecipeRPCError("RECIPE_REVIEW_CHANGED")
         receipt = await self.rpc.call("ReviewRevision", **intent)
         if any(
             receipt.get(key) != intent[key] for key in ("workspace_id", "revision_id", "decision")
@@ -284,6 +305,10 @@ class SourceRecipeCoordinator:
             row = session.get(SourcePipeline, source_id)
             if row.summary.get("revision_review", {}).get("intent") != intent:
                 raise RecipeRPCError("RECIPE_REVIEW_CHANGED")
+            if intent["decision"] == "reject":
+                current = failed_candidate_audit(session, source_id, intent["feedback"]["audit_id"])
+                if current.candidate_revision_id != intent["revision_id"]:
+                    raise RecipeRPCError("RECIPE_REVIEW_CHANGED")
             row.summary = dict(row.summary, revision_review={**pending, "status": "delivered"})
             author = row.summary.get("authoring_job", {})
             if (
@@ -298,39 +323,38 @@ class SourceRecipeCoordinator:
     async def reject_candidate(self, source_id, audit_id):
         from sqlalchemy.orm import Session
 
-        from youju.models import SourceRecipeBinding
-
+        from .recipe_versions import failed_candidate_audit, queue_review, same_source_revision
         from .repair import audit_feedback
 
         if self.rpc is None:
             return
-        with Session(self.store.engine) as session:
-            binding = session.get(SourceRecipeBinding, source_id)
+        # Diagnose before exporting feedback (which may expose semantic cases).
+        with self.store.lock, Session(self.store.engine) as session:
+            binding = failed_candidate_audit(session, source_id, audit_id)
+            if same_source_revision(session, binding):
+                return  # Audit already records runtime failure; source history stays terminal.
             workspace_id, revision_id = binding.workspace_id, binding.candidate_revision_id
-        if revision_id:
-            previous = self.store.status(source_id)["summary"].get("revision_review", {})
-            if (
-                previous.get("intent", {}).get("revision_id") == revision_id
-                and previous.get("intent", {}).get("decision") == "reject"
-            ):
-                await self.flush_review(source_id)
-                return
-            from .recipe_versions import queue_review
-
-            feedback = audit_feedback(self.store, source_id, audit_id)
-            with self.store.lock, Session(self.store.engine) as session, session.begin():
-                queue_review(
-                    session,
-                    source_id,
-                    workspace_id=workspace_id,
-                    revision_id=revision_id,
-                    decision="reject",
-                    feedback={
-                        "audit_id": audit_id,
-                        "passed": False,
-                        "counts": feedback["counts"],
-                        "issues_truncated": feedback["issues_truncated"],
-                    },
-                    request_id="reject-audit-" + audit_id,
-                )
-            await self.flush_review(source_id)
+        if not revision_id:
+            return
+        feedback = audit_feedback(self.store, source_id, audit_id)
+        with self.store.lock, Session(self.store.engine) as session, session.begin():
+            binding = failed_candidate_audit(session, source_id, audit_id)
+            if (binding.workspace_id, binding.candidate_revision_id) != (workspace_id, revision_id):
+                raise RecipeRPCError("RECIPE_REVIEW_CHANGED")
+            queue_review(
+                session,
+                source_id,
+                workspace_id=workspace_id,
+                revision_id=revision_id,
+                decision="reject",
+                feedback={
+                    "audit_id": audit_id,
+                    "passed": False,
+                    "generation": feedback["generation"],
+                    "recipe_id": feedback["recipe_id"],
+                    "counts": feedback["counts"],
+                    "issues_truncated": feedback["issues_truncated"],
+                },
+                request_id="reject-audit-" + audit_id,
+            )
+        await self.flush_review(source_id)

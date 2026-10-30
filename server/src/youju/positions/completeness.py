@@ -9,7 +9,7 @@ import re
 STRUCTURED_SIGNALS = {
     "education": r"学历|硕士研究生|博士研究生|(?:本科|专科|大专|研究生)(?:及以上|以上|学历)",
     "degree": r"(?:学士|硕士|博士)学位",
-    "major": r"专业(?:要求|不限)|(?:相关|类)专业",
+    "major": r"专业(?:要求|不限|背景)|(?:相关|类)专业",
     "age": r"(?:\d+\s*(?:周岁|岁)|年龄).{0,12}(?:以下|以上|不超过|不低于|放宽)|"
     r"(?:不超过|不满|年满)\s*\d+\s*(?:周岁|岁)",
     "work_experience": r"工作经验|工作经历|\d+\s*年.{0,8}经验",
@@ -34,7 +34,16 @@ STRICT_COMPLETION_CODES = frozenset(
 
 
 def structured_signals(text):
-    return [kind for kind, pattern in STRUCTURED_SIGNALS.items() if re.search(pattern, text)]
+    kinds = []
+    for kind, pattern in STRUCTURED_SIGNALS.items():
+        for match in re.finditer(pattern, text):
+            if kind == "education" and re.search(
+                r"指导|培养|讲授", text[max(0, match.start() - 12) : match.start()]
+            ):
+                continue  # Teaching duties are not an applicant education requirement.
+            kinds.append(kind)
+            break
+    return kinds
 
 
 def residual_structure_gaps(text):
@@ -124,14 +133,33 @@ def completion_issues(draft):
                         "candidate_types": conditional,
                     }
                 )
-        requirement_text = fields.get("requirements_text", {}).get("value") or ""
-        if structured_signals(requirement_text) and not conditions:
-            issues.append(
-                {
-                    "code": "FIELD_COMPLETION_REQUIRED",
-                    "message": "Readable requirements have no extracted conditions",
-                    "path": path + ".conditions",
-                }
+        from .requirement_coverage import requirement_gaps
+
+        for source_path, group in (("notice_facts", common), (path, position)):
+            requirement_text = (
+                group.get("fields", {}).get("requirements_text", {}).get("value") or ""
+            )
+            applicable = conditions if source_path == path else common.get("conditions", [])
+            graphs = [
+                g.get("condition_logic")
+                for g in ((common, position) if source_path == path else (common,))
+                if g.get("condition_logic") is not None
+            ]
+            logic = (
+                graphs[0]
+                if len(graphs) == 1
+                else ({"operator": "all", "items": graphs} if graphs else None)
+            )
+            issues.extend(
+                requirement_gaps(
+                    requirement_text,
+                    applicable,
+                    signal_types=structured_signals,
+                    path=path,
+                    source_path=source_path + ".fields.requirements_text",
+                    position_key=position.get("key", str(index)),
+                    logic=logic,
+                )
             )
         for condition in conditions:
             if condition.get("type") != "other" and condition.get("value") is None:

@@ -68,6 +68,7 @@ class RecipeAuthor:
         *,
         require_application_period=False,
         validation_bindings=None,
+        expectations=None,
     ):
         candidate = _clone(candidate)
         errors = self.runner.validate(candidate)
@@ -77,9 +78,30 @@ class RecipeAuthor:
                 try:
                     result = await self.runner.run(candidate, sample, now_iso=now_iso)
                     sample_errors = self.sample_errors(sample, result)
-                    errors.extend({**item, "sample_index": index} for item in sample_errors)
+                    errors.extend(
+                        {**item, "sample_index": index, "case_id": sample.get("id")}
+                        for item in sample_errors
+                    )
+                    semantic = None
+                    if sample.get("id") in (expectations or {}):
+                        from youju.positions.semantics import check_expected
+
+                        semantic = check_expected(result, expectations[sample["id"]])
+                        errors.extend(
+                            {
+                                **issue,
+                                "code": "SEMANTIC_EXPECTATION",
+                                "semantic_code": issue["code"],
+                                "sample_index": index,
+                                "case_id": sample["id"],
+                                "message": "Candidate disagrees with independent host assertion",
+                            }
+                            for issue in semantic["issues"]
+                        )
                     outcomes.append(
                         {
+                            "case_id": sample.get("id"),
+                            "semantic": semantic or {"status": "unlabeled_not_accuracy_evidence"},
                             "sample_index": index,
                             "status": result["status"],
                             "position_count": len(result["positions"]),
@@ -113,7 +135,10 @@ class RecipeAuthor:
                             "message": "Sample execution failed; inspect the failure receipt",
                         }
                     ]
-                    errors.extend({**item, "sample_index": index} for item in details)
+                    errors.extend(
+                        {**item, "sample_index": index, "case_id": sample.get("id")}
+                        for item in details
+                    )
         return {
             "status": "rejected" if errors else "validated",
             "candidate": candidate,

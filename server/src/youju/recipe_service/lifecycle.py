@@ -207,6 +207,13 @@ class ManagedLifecycle:
                     )
                 except (ValueError, OSError, KeyError, TypeError) as exc:
                     raise ServiceError("INVALID_CASE_CATALOG") from exc
+            if payload.get("acceptance_ref") is not None:
+                from .acceptance import load_acceptance
+
+                try:
+                    load_acceptance(self.blobs, payload["acceptance_ref"], payload.get("source_id"))
+                except (ValueError, OSError, KeyError, TypeError) as exc:
+                    raise ServiceError("INVALID_ACCEPTANCE_INPUT") from exc
             snapshot_ref = self.blobs.put(
                 bounded_json(
                     {
@@ -607,6 +614,23 @@ class ManagedLifecycle:
         actual = candidate_digest(candidate)
         if result.get("digest") != actual:
             raise ServiceError("Candidate digest mismatch")
+        inputs = self.input_snapshot(job["input_revision_id"])
+        payload = json.loads(inputs["files"]["payload.json"])
+        if payload.get("acceptance_ref"):
+            from .acceptance import checker_key
+
+            last = attempts[-1] if attempts else {}
+            acceptance = last.get("acceptance", {})
+            if (
+                last.get("digest") != actual
+                or last.get("errors") != []
+                or last.get("status") != "validated"
+                or acceptance.get("manifest_ref") != payload["acceptance_ref"]
+                or acceptance.get("checker_key") != checker_key()
+                or acceptance.get("status") not in {"passed", "no_independent_cases"}
+                or acceptance.get("errors") != []
+            ):
+                raise ServiceError("INDEPENDENT_ACCEPTANCE_REQUIRED")
         if job["kind"] == "repair":
             request = json.loads(self.blobs.read(job["prompt_ref"]))
             if request["feedback"]["recipe_digest"] == actual:

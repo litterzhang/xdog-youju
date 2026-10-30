@@ -93,6 +93,32 @@ def _print(value):
 
 
 def register_onboarding_commands(app):
+    @app.cli.command("source-recipe-review-diagnose")
+    @click.argument("source_id")
+    @click.option(
+        "--database", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path)
+    )
+    def recipe_review_diagnose(source_id, database):
+        """Explain pending review conflicts using a read-only SQLite connection."""
+        import sqlite3
+
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import Session
+
+        from .recipe_versions import review_diagnostic
+
+        engine = create_engine(
+            "sqlite://",
+            creator=lambda: sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True),
+        )
+        try:
+            with Session(engine) as session:
+                _print(review_diagnostic(session, source_id))
+        except (ValueError, SQLAlchemyError) as error:
+            raise click.ClickException(str(error)) from error
+        finally:
+            engine.dispose()
+
     @app.cli.command("source-accuracy-migrate")
     @_paths
     def accuracy_migrate(database, storage):

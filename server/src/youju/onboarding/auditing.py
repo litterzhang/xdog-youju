@@ -166,6 +166,7 @@ def runtime_issues(result):
     except (ValueError, TypeError, KeyError) as error:
         invalid(f"Invalid routing receipt: {error}")
     execution = result.get("execution", {})
+    from youju.positions.corrections import valid_correction_receipts
     from youju.recipe_runtime.diagnostics import valid_stage_receipts
 
     from .repair_diagnostics import valid_failure_receipt
@@ -174,9 +175,16 @@ def runtime_issues(result):
     if (
         not isinstance(execution, dict)
         or not required_execution <= set(execution)
-        or set(execution) - required_execution - {"failure", "stages"}
+        or set(execution) - required_execution - {"failure", "stages", "corrections"}
         or ("failure" in execution and not valid_failure_receipt(execution["failure"]))
         or ("stages" in execution and not valid_stage_receipts(execution["stages"]))
+        or (
+            "corrections" in execution
+            and (
+                not valid_correction_receipts(execution["corrections"])
+                or (execution["corrections"] and execution.get("model_used") is not True)
+            )
+        )
         or execution.get("path") not in ("quick", "detailed")
         or not (
             execution.get("parser") in {"parser.py", "undated_parser.py"}

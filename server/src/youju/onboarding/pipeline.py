@@ -700,6 +700,8 @@ class Pipeline:
                 or audit.finished_at is None
                 or not audit.summary.get("passed")
                 or audit.summary.get("admission", {}).get("policy") != "quarantine-v1"
+                or audit.summary.get("generation")
+                != pipeline.summary.get("candidate_generation", binding.generation + 1)
             ):
                 raise ValueError(
                     "Activation requires a validated recipe and completed admission audit"
@@ -711,6 +713,8 @@ class Pipeline:
                 checked = session.get(AuditResult, entry["id"])
                 if (
                     checked is None
+                    or checked.recipe_id != recipe_id
+                    or checked.generation != audit.summary["generation"]
                     or not semantic_current(session, checked)
                     or not temporal_current(session, checked)
                 ):
@@ -732,16 +736,9 @@ class Pipeline:
             # Shared-runtime re-audit is not a new source-authored revision.
             # Service revision reviews are terminal: preserve the earlier owner
             # decision instead of submitting a second, conflicting acceptance.
-            same_revision = bool(
-                binding.candidate_revision_id
-                and binding.candidate_revision_id == binding.active_revision_id
-            )
-            if same_revision and (
-                previous_recipe is None
-                or previous_recipe.body_ref != recipe.body_ref
-                or previous_recipe.workspace_id != recipe.workspace_id
-            ):
-                raise ValueError("An unchanged service revision requires identical artifacts")
+            from .recipe_versions import same_source_revision
+
+            same_revision = same_source_revision(session, binding)
             recipe.status = "active"
             if binding.active_recipe_id and binding.active_recipe_id != recipe_id:
                 previous_recipe.status = "retired"

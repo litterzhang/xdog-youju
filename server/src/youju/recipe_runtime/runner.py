@@ -57,6 +57,7 @@ class RecipeRunner:
         final, pending_payload, session, script_snapshot = None, None, None, None
         parser_file, model_used, script_issues = None, False, []
         stage_outputs = {}
+        correction_receipts = []
 
         def pinned(packet):
             if not isinstance(packet, dict) or any(
@@ -138,6 +139,8 @@ class RecipeRunner:
             packet = pinned(packet)
             checked_draft(packet.get("draft"))
             validate_empty_capture(bundle, packet["draft"])
+            if packet["draft"].get("corrections"):
+                raise RecipeError("DRAFT_INVALID", "Source scripts cannot authorize corrections")
             # The host diagnoses semantic gaps; the Flow still owns the branch.
             # Reuse the established coverage signal so existing editable graphs
             # honor shared completeness without rewriting source artifacts.
@@ -195,7 +198,9 @@ class RecipeRunner:
                 )
             validate_empty_capture(bundle, detailed)
             previous = packet["draft"]
-            packet["draft"] = merge_drafts(previous, detailed)
+            packet["draft"] = merge_drafts(
+                previous, detailed, bundle=bundle, correction_receipts=correction_receipts
+            )
             stage_outputs["merged_draft"] = deepcopy(packet["draft"])
             # An expected merge conflict may still make a mandatory identity
             # unknown. Never let normalization silently discard an earlier job.
@@ -204,6 +209,8 @@ class RecipeRunner:
             merged = {p["key"]: p for p in packet["draft"]["positions"]}
             lost = []
             for position in previous["positions"]:
+                if position["key"] not in merged:
+                    continue  # Only an accepted explicit withdrawal can remove a key.
                 old_title = {**old_common, **position.get("fields", {})}.get("title", {})
                 current = merged.get(position["key"], {})
                 new_title = {**new_common, **current.get("fields", {})}.get("title", {})
@@ -231,6 +238,8 @@ class RecipeRunner:
             from youju.positions.relative_dates import apply_relative_dates
 
             checked_draft(draft)
+            if draft.get("corrections"):
+                raise RecipeError("DRAFT_INVALID", "Unapplied corrections cannot become facts")
             validate_empty_capture(bundle, draft)
             relative = apply_relative_dates(draft, bundle, fact_context)
             change = apply_fact_changes(relative["draft"], fact_context)
@@ -292,6 +301,7 @@ class RecipeRunner:
                 "parser": parser_file,
                 "script_issues": deepcopy(script_issues),
                 "stages": stage_receipts(stage_outputs),
+                **({"corrections": deepcopy(correction_receipts)} if correction_receipts else {}),
             }
 
         def before_model():

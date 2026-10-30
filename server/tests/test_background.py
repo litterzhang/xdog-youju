@@ -84,6 +84,20 @@ def test_managed_rpc_onboarding_callback_audit_and_acceptance_survive_recreation
             attempt = await author.validate_candidate(
                 candidate, payload["samples"], payload["now_iso"], 1
             )
+            if payload.get("acceptance_ref"):
+                from youju.poc.storage import BlobStore
+                from youju.recipe_service.acceptance import validate_submission
+
+                attempt["acceptance"] = await validate_submission(
+                    BlobStore(workspace.root.parent / "objects"),
+                    payload["acceptance_ref"],
+                    payload["source_id"],
+                    author,
+                    candidate,
+                    payload["now_iso"],
+                    {},
+                )
+                attempt["errors"].extend(attempt["acceptance"]["errors"])
             assert not attempt["errors"], attempt["errors"]
             return TaskOutcome(
                 "candidate_ready",
