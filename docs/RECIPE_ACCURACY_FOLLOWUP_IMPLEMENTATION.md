@@ -144,3 +144,11 @@ approval (or a trusted custom factory's equivalent); no checkpoint migration or
 permission relaxation is automatic. Historical repair
 or re-extraction needs its own bounded plan, consistent backups, rollback procedure
 and explicit production authorization.
+
+
+## Subsequent authorized deployment
+
+After the offline implementation delivery, the user separately authorized commit,
+push, deployment and upload. See `RELEASE_20261030.md` for the actual service/H5
+rollout, WeChat development 0.1.19 upload and preserved historical conflict. No
+historical reparse or source-side review reconciliation was included.

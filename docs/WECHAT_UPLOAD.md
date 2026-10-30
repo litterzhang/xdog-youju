@@ -301,3 +301,17 @@ and verified through the working `youjuh5-h.942295.xyz` ingress; the bare H5 hos
 still serves an outer welcome page. No backend service was restarted and no WeChat
 review/production release was submitted. See `CLIENT_RELEASE_20261026.md` and the
 private receipts under `server/.artifacts/release-20261026-151234/`.
+
+
+## Recipe accuracy follow-up — October 30, 2026
+
+Official Taro mini-ci uploaded **0.1.19** at **13:34:36 Asia/Shanghai**, reporting
+**572.9296875 KB**. Description: `Recipe accuracy runtime and audit lifecycle update`.
+This backend-focused release preserves the existing client UI. All 135 client
+tests, TypeScript, staged H5/weapp builds and the official upload build passed;
+HTTPS API origin and URL checks remain enabled. Server processes and H5 were
+separately deployed/verified; existing jobs, Recipe artifacts and pending review
+intent were preserved. See `RELEASE_20261030.md` for the historical conflict and
+actual ingress limitations. No review or formal production release was submitted;
+experience selection and physical-device behavior remain unverified. Receipt/QR:
+`server/.artifacts/release-20261030-132647/`.
